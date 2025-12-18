@@ -1,0 +1,105 @@
+import type { SearchResult, FieldOption } from '~/types/search'
+
+export const fieldOptions: FieldOption[] = [
+    { label: 'Law Refernces', value: 'law-ref' },
+    { label: 'ECLI', value: 'ecli' }
+]
+
+export const allResults: SearchResult[] = [
+    {
+        id: '1000',
+        ecli: 'ECLI:NL:HR:2023:1234',
+        date: '2023-11-15',
+        summary: 'Decision regarding contract law interpretation...',
+        domain: 'Civil',
+        citations: 12,
+    },
+    {
+        id: '1001',
+        ecli: 'ECLI:EU:C:2023:567',
+        date: '2023-10-02',
+        summary: 'Preliminary ruling on data protection...',
+        domain: 'Administrative',
+        citations: 45,
+    },
+    {
+        id: '1002',
+        ecli: 'ECLI:NL:PHR:2023:890',
+        date: '2023-09-20',
+        summary: 'Advisory opinion on criminal procedure...',
+        domain: 'Criminal',
+        citations: 8,
+    },
+    {
+        id: '1003',
+        ecli: 'ECLI:NL:HR:2023:1234',
+        date: '2023-11-15',
+        summary: 'Decision regarding contract law interpretation...',
+        domain: 'Civil',
+        citations: 12,
+    },
+    {
+        id: '1004',
+        ecli: 'ECLI:EU:C:2023:567',
+        date: '2023-10-02',
+        summary: 'Preliminary ruling on data protection...',
+        domain: 'Administrative',
+        citations: 45,
+    },
+    {
+        id: '1005',
+        ecli: 'ECLI:NL:PHR:2023:890',
+        date: '2023-09-20',
+        summary: 'Advisory opinion on criminal procedure...',
+        domain: 'Criminal',
+        citations: 8,
+    },
+    {
+        id: '1006',
+        ecli: 'ECLI:NL:HR:2023:1234',
+        date: '2023-11-15',
+        summary: 'Decision regarding contract law interpretation...',
+        domain: 'Civil',
+        citations: 12,
+    },
+    {
+        id: '1007',
+        ecli: 'ECLI:EU:C:2023:567',
+        date: '2023-10-02',
+        summary: 'Preliminary ruling on data protection...',
+        domain: 'Administrative',
+        citations: 45,
+    },
+    {
+        id: '1008',
+        ecli: 'ECLI:NL:PHR:2023:890',
+        date: '2023-09-20',
+        summary: 'Advisory opinion on criminal procedure...',
+        domain: 'Criminal',
+        citations: 8,
+    },
+    {
+        id: '1009',
+        ecli: 'ECLI:NL:HR:2023:1234',
+        date: '2023-11-15',
+        summary: 'Decision regarding contract law interpretation...',
+        domain: 'Civil',
+        citations: 12,
+    },
+    {
+        id: '1010',
+        ecli: 'ECLI:EU:C:2023:567',
+        date: '2023-10-02',
+        summary: 'Preliminary ruling on data protection...',
+        domain: 'Administrative',
+        citations: 45,
+    },
+    {
+        id: '1011',
+        ecli: 'ECLI:NL:PHR:2023:890',
+        date: '2023-09-20',
+        summary: 'Advisory opinion on criminal procedure...',
+        domain: 'Criminal',
+        citations: 8,
+    },
+]
