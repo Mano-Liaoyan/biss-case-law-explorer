@@ -56,6 +56,7 @@ const columns: TableColumn<Result>[] = [
       return new Date(row.getValue('date')).toLocaleString('en-US', {
         day: 'numeric',
         month: 'short',
+        year: "numeric",
         hour: '2-digit',
         minute: '2-digit',
         hour12: false,
