@@ -9,9 +9,9 @@ const emit = defineEmits<{
   (e: 'search', rules: SearchRule[]): void
 }>()
 
-const searchRules = ref<SearchRule[]>([
-  { id: '1', operator: 'AND', field: Object.keys(props.fields)[0]!, comparator: props.fields[Object.keys(props.fields)[0]!]?.comparators[0]?.value!, value: '' },
-])
+const searchRules = defineModel<SearchRule[]>('rules', {
+  required: true
+})
 
 // Watch for changes in the field of each search rule to reset the comparator
 watch(
@@ -59,11 +59,6 @@ const clearRules = () => {
       value: '',
     },
   ]
-  emit('search', searchRules.value)
-}
-
-const executeSearch = () => {
-  emit('search', searchRules.value)
 }
 </script>
 
@@ -95,7 +90,7 @@ const executeSearch = () => {
             option-attribute="label" :ui="{ content: 'min-w-fit' }" placeholder="Condition" />
 
           <!-- Value Input -->
-          <UInput class=" flex-auto grow" size="md" v-model="rule.value" placeholder="Value..." @keydown.enter="executeSearch" />
+          <UInput class=" flex-auto grow" size="md" v-model="rule.value" placeholder="Value..." @keydown.enter="emit('search', searchRules)" />
 
 
           <USelect class="basis-20 shrink-0" size="md" v-model="rule.operator" color="secondary" variant="none" :items="['AND', 'OR']" placeholder="Operator" />

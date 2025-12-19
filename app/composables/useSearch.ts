@@ -3,9 +3,23 @@ import type { SearchRule, SearchResult } from '~/types/search'
 import { allResults } from '~/mock/search'
 
 export const useSearch = () => {
-  const results = ref<SearchResult[]>([...allResults])
+  const results = ref<SearchResult[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+
+  const fetchInitialData = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      // Simulate initial API delay
+      await new Promise(resolve => setTimeout(resolve, 3000))
+      results.value = [...allResults]
+    } catch (e: any) {
+      error.value = e.message || 'An error occurred during initial fetch'
+    } finally {
+      loading.value = false
+    }
+  }
 
   const handleSearch = async (rules: SearchRule[]) => {
     loading.value = true
@@ -84,6 +98,7 @@ export const useSearch = () => {
     results,
     loading,
     error,
-    handleSearch
+    handleSearch,
+    fetchInitialData
   }
 }

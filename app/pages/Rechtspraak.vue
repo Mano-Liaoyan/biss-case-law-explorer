@@ -4,16 +4,15 @@ import type { SearchRule, SearchResult, ComparatorOption } from '~/types/search'
 import { fieldOptionsRechtspraak } from '~/mock/search'
 
 const q = ref('')
+const queryName = ref('')
 
 const AdvancedSearch = resolveComponent('AdvancedSearch')
 const ResultFilter = resolveComponent('ResultFilter')
 const ResultTable = resolveComponent('ResultTable')
 
-const { loading, results, error, fetch } = fetchData()
-const { handleSearch } = useSearch()
+const { results, loading, error, handleSearch, fetchInitialData } = useSearch()
 
 const open = ref(false)
-const res = ref<SearchResult[]>([])
 
 const comparatorOptions: ComparatorOption[] = [
   { label: 'contains', value: 'contains' },
@@ -24,9 +23,35 @@ const comparatorOptions: ComparatorOption[] = [
   { label: 'ends with', value: 'ends_with' },
 ]
 
+const advancedRules = ref<SearchRule[]>([
+  { id: '1', operator: 'AND', field: Object.keys(fieldOptionsRechtspraak)[0]!, comparator: fieldOptionsRechtspraak[Object.keys(fieldOptionsRechtspraak)[0]!]?.comparators[0]?.value!, value: '' },
+])
+
 onMounted(async () => {
-  res.value = await fetch()
+  await fetchInitialData()
 })
+
+const handleMainSearch = () => {
+  const combinedRules: SearchRule[] = []
+
+  // Add main search rule if q has value
+  if (q.value) {
+    combinedRules.push({
+      id: 'main-search',
+      operator: 'AND',
+      field: 'all',
+      comparator: 'contains',
+      value: q.value
+    })
+  }
+
+  // Filter out empty advanced rules and add them
+  const validAdvancedRules = advancedRules.value.filter(rule => rule.value.trim() !== '')
+
+  combinedRules.push(...validAdvancedRules)
+
+  handleSearch(combinedRules)
+}
 </script>
 
 <template>
@@ -34,11 +59,11 @@ onMounted(async () => {
     <!-- Advanced Search Builder -->
     <UCard>
       <div class="flex flex-row gap-2">
-        <UInput v-model="q" icon="i-ic:round-drive-file-rename-outline" size="xl" placeholder="Query Name (Optional)" class="basis-2xs">
+        <UInput v-model="queryName" icon="i-ic:round-drive-file-rename-outline" size="xl" placeholder="Query Name (Optional)" class="basis-2xs">
         </UInput>
-        <UInput v-model="q" icon="i-heroicons-magnifying-glass" size="xl" placeholder="Search for cases, articles, or ECLIs..." class="flex-auto">
+        <UInput v-model="q" icon="i-heroicons-magnifying-glass" size="xl" placeholder="Search for cases, articles, or ECLIs..." class="flex-auto" @keydown.enter="handleMainSearch">
         </UInput>
-        <UButton class="flex-initial" size="xl" color="primary">Search</UButton>
+        <UButton class="flex-initial" size="xl" color="primary" @click="handleMainSearch" :loading="loading">Search</UButton>
       </div>
       <UCollapsible v-model:open="open">
         <UButton class="group my-2" color="primary" variant="ghost" trailing-icon="i-lucide-chevron-down" :ui="{
@@ -48,7 +73,7 @@ onMounted(async () => {
           Advanced Search
         </UButton>
         <template #content>
-          <AdvancedSearch :comparator-ops="comparatorOptions" :fields="fieldOptionsRechtspraak" @search="handleSearch" />
+          <AdvancedSearch v-model:rules="advancedRules" :fields="fieldOptionsRechtspraak" @search="handleMainSearch" />
         </template>
       </UCollapsible>
     </UCard>
@@ -61,7 +86,7 @@ onMounted(async () => {
 
       <!-- Results List (Right Side) -->
       <div class="lg:col-span-10 space-y-4">
-        <ResultTable :loading="loading" :data="res" />
+        <ResultTable :loading="loading" :data="results" />
       </div>
     </div>
   </div>
