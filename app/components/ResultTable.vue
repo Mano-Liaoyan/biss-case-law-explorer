@@ -17,6 +17,7 @@ interface Result {
 
 const props = defineProps<{
   data: Result[]
+  loading: boolean
 }>()
 
 function getHeader(column: Column<Result>, label: string) {
@@ -81,7 +82,8 @@ const sorting = ref([])
 
 <template>
   <UCard :ui="{ body: { padding: 'p-0 sm:p-0' } } as any">
-    <UTable ref="table" :columns="columns" v-model:sorting="sorting" :data="data" class="w-full" :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }">
+    <UTable :loading="loading" loading-animation="swing" ref="table" :columns="columns" v-model:sorting="sorting" :data="data" class="w-full"
+      :pagination-options="{ getPaginationRowModel: getPaginationRowModel() }" summary="aaa">
       <template #ecli-data="{ row }">
         <span class="text-primary font-bold hover:underline cursor-pointer">{{ (row as any).ecli }}</span>
       </template>

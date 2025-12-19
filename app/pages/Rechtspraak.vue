@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import type { SearchRule } from '~/types/search'
+import type { SearchRule, SearchResult } from '~/types/search'
 import { fieldOptions } from '~/mock/search'
 
 const q = ref('')
@@ -9,9 +9,15 @@ const AdvancedSearch = resolveComponent('AdvancedSearch')
 const ResultFilter = resolveComponent('ResultFilter')
 const ResultTable = resolveComponent('ResultTable')
 
-const { results, handleSearch } = useSearch()
+const { loading, results, error, fetch } = fetchData()
+const { handleSearch } = useSearch()
 
 const open = ref(false)
+const res = ref<SearchResult[]>([])
+
+onMounted(async () => {
+  res.value = await fetch()
+})
 </script>
 
 <template>
@@ -46,7 +52,7 @@ const open = ref(false)
 
       <!-- Results List (Right Side) -->
       <div class="lg:col-span-10 space-y-4">
-        <ResultTable :data="results" />
+        <ResultTable :loading="loading" :data="res" />
       </div>
     </div>
   </div>
