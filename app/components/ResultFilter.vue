@@ -6,6 +6,30 @@ const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')
 const USeparator = resolveComponent('USeparator')
 
+export type FilterType = 'tree' | 'search-list' | 'checkbox-group'
+
+export interface FilterOption {
+  id: string
+  label: string
+  children?: FilterOption[]
+  isOpen?: boolean
+}
+
+export interface FilterSection {
+  id: string
+  name: string
+  icon?: string
+  type: FilterType
+  options: FilterOption[]
+  gridCols?: number
+  placeholder?: string
+  isOpen?: boolean
+}
+
+const props = defineProps<{
+  sections: FilterSection[]
+}>()
+
 const emit = defineEmits(['filter'])
 
 const inputDateStart = useTemplateRef('inputDateStart')
@@ -14,175 +38,66 @@ const inputDateEnd = useTemplateRef('inputDateEnd')
 const startDate = shallowRef(new CalendarDate(2021, 1, 10))
 const endDate = shallowRef(new CalendarDate(2022, 1, 10))
 
-const selectedInstances = ref<string[]>([])
-const selectedDomains = ref<string[]>([])
+const selectedValues = ref<Record<string, string[]>>({})
+const searchInputs = ref<Record<string, string>>({})
+
 const keywords = ref<string[]>([])
 const keywordInput = ref('')
 const isAdvancedSettingOpen = ref(false)
 
-interface Filter {
-  name: string,
-  iconId: string,
-  collection: 'instances' | 'domains',
-  filterChildren?: FilterItem[],
-  isOpen?: boolean
+// Initialize selectedValues and searchInputs
+watch(() => props.sections, (newSections) => {
+  newSections.forEach(section => {
+    if (selectedValues.value[section.id] === undefined) {
+      selectedValues.value[section.id] = []
+    }
+    if (section.type === 'search-list' && searchInputs.value[section.id] === undefined) {
+      searchInputs.value[section.id] = ''
+    }
+  })
+}, { immediate: true })
+
+const getFilteredOptions = (section: FilterSection) => {
+  const search = searchInputs.value[section.id] || ''
+  if (!search) return []
+  return section.options.filter(opt =>
+    opt.label.toLowerCase().includes(search.toLowerCase()) ||
+    opt.id.toLowerCase().includes(search.toLowerCase())
+  )
 }
 
-interface FilterItem {
-  id: string
-  label: string
-  children?: FilterItem[]
-  isOpen?: boolean
-}
-
-const filterInstances = ref<Filter[]>([
-  {
-    name: "Instances",
-    collection: 'instances',
-    iconId: "i-ri:instance-line",
-    filterChildren: [
-      { id: 'hoge-raad', label: 'Hoge Raad' },
-      { id: 'raad-van-state', label: 'Raad van State' },
-      { id: 'centrale-raad', label: 'Centrale Raad van Beroep' },
-      { id: 'college-v-beroep', label: 'College van Beroep voor het bedrijfsleven' },
-      {
-        id: 'gerechtshoven',
-        label: 'Gerechtshoven',
-        isOpen: false,
-        children: [
-          { id: 'hof-amsterdam', label: 'Gerechtshof Amsterdam' },
-          { id: 'hof-arnhem', label: 'Gerechtshof Arnhem-Leeuwarden' },
-          { id: 'hof-den-haag', label: 'Gerechtshof Den Haag' },
-          { id: 'hof-hertogenbosch', label: "Gerechtshof 's Hertogenbosch" },
-        ],
-      },
-      {
-        id: 'rechtbanken',
-        label: 'Rechtbanken',
-        isOpen: false,
-        children: [
-          { id: 'rb-amsterdam', label: 'Rechtbank Amsterdam' },
-          { id: 'rb-den-haag', label: 'Rechtbank Den Haag' },
-          { id: 'rb-gelderland', label: 'Rechtbank Gelderland' },
-          { id: 'rb-limburg', label: 'Rechtbank Limburg' },
-          { id: 'rb-midden-nl', label: 'Rechtbank Midden-Nederland' },
-          { id: 'rb-noord-holland', label: 'Rechtbank Noord-Holland' },
-          { id: 'rb-noord-nl', label: 'Rechtbank Noord-Nederland' },
-          { id: 'rb-oost-brabant', label: 'Rechtbank Oost-Brabant' },
-          { id: 'rb-overijssel', label: 'Rechtbank Overijssel' },
-          { id: 'rb-rotterdam', label: 'Rechtbank Rotterdam' },
-          { id: 'rb-z-w-brabant', label: 'Rechtbank Zeeland-West-Brabant' },
-        ],
-      },
-      {
-        id: 'andere-inst',
-        label: 'Andere instanties binnen het Koninkrijk',
-        isOpen: false,
-        children: [
-          { id: 'hof-st-maarten', label: 'Constitutioneel Hof Sint Maarten' },
-          { id: 'gem-hof-justitie', label: 'Gemeenschappelijk Hof van Justitie van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
-          { id: 'ger-ambtenaren', label: 'Gerecht in Ambtenarenzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
-          { id: 'raad-ber-ambt', label: 'Raad van Beroep in Ambtenarenzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
-          { id: 'raad-ber-belast', label: 'Raad van Beroep voor Belastingzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
-          { id: 'ger-eerste-aruba', label: 'Gerecht in Eerste Aanleg van Aruba' },
-          { id: 'ger-eerste-bonaire', label: 'Gerecht in eerste aanleg van Bonaire, Sint Eustatius en Saba' },
-          { id: 'ger-eerste-curacao', label: 'Gerecht in eerste aanleg van Curaçao' },
-          { id: 'ger-eerste-st-maarten', label: 'Gerecht in eerste aanleg van Sint Maarten' },
-        ],
-      },
-    ]
-
-  },
-
-  {
-
-    name: "Domains",
-    collection: 'domains',
-    iconId: "i-ic:round-domain",
-    filterChildren: [
-      {
-        id: 'bestuursrecht',
-        label: 'Bestuursrecht',
-        isOpen: false,
-        children: [
-          { id: 'ambtenarenrecht', label: 'Ambtenarenrecht' },
-          { id: 'belastingrecht', label: 'Belastingrecht' },
-          { id: 'bestuursprocesrecht', label: 'Bestuursprocesrecht' },
-          { id: 'bestuursstrafrecht', label: 'Bestuursstrafrecht' },
-          { id: 'eu-bestuursrecht', label: 'Europees bestuursrecht' },
-          { id: 'mededingingsrecht-b', label: 'Mededingingsrecht' },
-          { id: 'omgevingsrecht', label: 'Omgevingsrecht' },
-          { id: 'soc-zekerheid', label: 'Socialezekerheidsrecht' },
-          { id: 'vreemdelingenrecht', label: 'Vreemdelingenrecht' },
-        ],
-      },
-      {
-        id: 'civiel-recht',
-        label: 'Civiel recht',
-        isOpen: false,
-        children: [
-          { id: 'aanbestedingsrecht', label: 'Aanbestedingsrecht' },
-          { id: 'arbeidsrecht', label: 'Arbeidsrecht' },
-          { id: 'burgerlijk-procesrecht', label: 'Burgerlijk procesrecht' },
-          { id: 'eu-civiel-recht', label: 'Europees civiel recht' },
-          { id: 'goederenrecht', label: 'Goederenrecht' },
-          { id: 'insolventierecht', label: 'Insolventierecht' },
-          { id: 'intellectueel-eigendom', label: 'Intellectueel-eigendomsrecht' },
-          { id: 'int-privaat-recht', label: 'Internationaal privaatrecht' },
-          { id: 'mededingingsrecht-c', label: 'Mededingingsrecht' },
-          { id: 'ondernemingsrecht', label: 'Ondernemingsrecht' },
-          { id: 'personen-familie', label: 'Personen- en familierecht' },
-          { id: 'verbintenissenrecht', label: 'Verbintenissenrecht' },
-        ],
-      },
-      {
-        id: 'int-publiekrecht',
-        label: 'Internationaal publiekrecht',
-        isOpen: false,
-        children: [
-          { id: 'mensenrechten', label: 'Mensenrechten' },
-          { id: 'volkenrecht', label: 'Volkenrecht' },
-        ],
-      },
-      {
-        id: 'strafrecht',
-        label: 'Strafrecht',
-        isOpen: false,
-        children: [
-          { id: 'eu-strafrecht', label: 'Europees strafrecht' },
-          { id: 'int-strafrecht', label: 'Internationaal strafrecht' },
-          { id: 'materieel-strafrecht', label: 'Materieel strafrecht' },
-          { id: 'penitentiair-strafrecht', label: 'Penitentiair strafrecht' },
-          { id: 'strafprocesrecht', label: 'Strafprocesrecht' },
-        ],
-      },
-    ]
-  }
-])
-
-const handleToggle = (item: FilterItem, checked: boolean | 'indeterminate', collection: 'instances' | 'domains') => {
+const handleToggle = (sectionId: string, item: FilterOption, checked: boolean | 'indeterminate') => {
   if (checked === 'indeterminate') return
 
-  const selected = collection === 'instances' ? selectedInstances : selectedDomains
+  const selected = selectedValues.value[sectionId] || []
   const idsToToggle = [item.id]
   if (item.children) {
-    idsToToggle.push(...item.children.map(c => c.id))
+    const getAllChildIds = (children: FilterOption[]): string[] => {
+      let ids: string[] = []
+      children.forEach(child => {
+        ids.push(child.id)
+        if (child.children) {
+          ids.push(...getAllChildIds(child.children))
+        }
+      })
+      return ids
+    }
+    idsToToggle.push(...getAllChildIds(item.children))
   }
 
   if (checked) {
     idsToToggle.forEach(id => {
-      if (!selected.value.includes(id)) {
-        selected.value.push(id)
+      if (!selected.includes(id)) {
+        selected.push(id)
       }
     })
   } else {
-    selected.value = selected.value.filter(id => !idsToToggle.includes(id))
+    selectedValues.value[sectionId] = selected.filter(id => !idsToToggle.includes(id))
   }
 }
 
-const isSelected = (id: string, collection: 'instances' | 'domains'): boolean => {
-  const selected = collection === 'instances' ? selectedInstances.value : selectedDomains.value
-  return selected.includes(id)
+const isSelected = (sectionId: string, id: string): boolean => {
+  return (selectedValues.value[sectionId] || []).includes(id)
 }
 
 const addKeyword = () => {
@@ -200,13 +115,12 @@ const removeKeyword = (word: string) => {
 }
 
 // Watch for changes and emit filter event
-watch([startDate, endDate, selectedInstances, selectedDomains, keywords], () => {
+watch([startDate, endDate, selectedValues, keywords], () => {
   emit('filter', {
     startDate: startDate.value,
     endDate: endDate.value,
-    instances: selectedInstances.value,
-    domains: selectedDomains.value,
-    keywords: keywords.value
+    keywords: keywords.value,
+    ...selectedValues.value
   })
 }, { deep: true })
 </script>
@@ -235,51 +149,67 @@ watch([startDate, endDate, selectedInstances, selectedDomains, keywords], () => 
 
       <USeparator />
 
-      <!-- Instances -->
-      <div v-for="filter in filterInstances" :key="filter.name" class="px-4 sm:px-0">
-        <UCollapsible v-model:open="filter.isOpen">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <UIcon :name="filter.iconId" class="w-4 h-4" />
-              {{ filter.name }}
-            </label>
-            <UIcon v-if="!filter.isOpen" name="i-lucide-chevron-right" class="w-4 h-4 text-gray-400" />
-            <UIcon v-else name="i-lucide-chevron-down" class="w-4 h-4 text-gray-400" />
-          </div>
-          <template #content>
-            <div v-for="filterChildren in filter.filterChildren" :key="filterChildren.id">
-              <template v-if="filterChildren.children">
-                <UCollapsible v-model:open="filterChildren.isOpen">
-                  <div class="flex items-center gap-2 py-1 group">
-                    <UButton :icon="filterChildren.isOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" variant="ghost" color="neutral" size="xs"
-                      class="p-0.5 text-gray-400 group-hover:text-gray-600" />
-                    <UCheckbox :model-value="isSelected(filterChildren.id, filter.collection)" :label="filterChildren.label"
-                      @update:model-value="(val) => handleToggle(filterChildren, val, filter.collection)" />
-                  </div>
-                  <template #content>
-                    <div class="ml-9 space-y-1 mb-2">
-                      <UCheckboxGroup :model-value="filter.collection === 'instances' ? selectedInstances : selectedDomains" value-key="id" :items="filterChildren.children"
-                        class="py-0.5" @update:model-value="(val) => {
-                          if (filter.collection === 'instances') selectedInstances = val as any
-                          else selectedDomains = val as any
-                        }" />
+      <!-- Dynamic Multi-Selection Sections -->
+      <template v-for="section in props.sections" :key="section.id">
+        <div class="px-4 sm:px-0">
+          <UCollapsible v-model:open="section.isOpen">
+            <div class="flex items-center justify-between mb-2 cursor-pointer">
+              <label class="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <UIcon v-if="section.icon" :name="section.icon" class="w-4 h-4" />
+                {{ section.name }}
+              </label>
+              <UIcon :name="section.isOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" class="w-4 h-4 text-gray-400" />
+            </div>
+
+            <template #content>
+              <!-- Tree Type -->
+              <div v-if="section.type === 'tree'" class="space-y-1">
+                <div v-for="option in section.options" :key="option.id">
+                  <template v-if="option.children">
+                    <UCollapsible v-model:open="option.isOpen">
+                      <div class="flex items-center gap-2 py-1 group">
+                        <UButton :icon="option.isOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" variant="ghost" color="neutral" size="xs"
+                          class="p-0.5 text-gray-400 group-hover:text-gray-600" />
+                        <UCheckbox :model-value="isSelected(section.id, option.id)" :label="option.label" @update:model-value="(val) => handleToggle(section.id, option, val)" />
+                      </div>
+                      <template #content>
+                        <div class="ml-9 space-y-1 mb-2">
+                          <UCheckboxGroup v-model="selectedValues[section.id]" value-key="id" :items="option.children" class="py-0.5" />
+                        </div>
+                      </template>
+                    </UCollapsible>
+                  </template>
+                  <template v-else>
+                    <div class="flex items-center gap-2 py-1">
+                      <UButton icon="i-lucide-dot" variant="ghost" color="neutral" size="xs" class="invisible p-0.5" />
+                      <UCheckbox :model-value="isSelected(section.id, option.id)" :label="option.label" @update:model-value="(val) => handleToggle(section.id, option, val)" />
                     </div>
                   </template>
-                </UCollapsible>
-              </template>
-              <template v-else>
-                <div class="flex items-center gap-2 py-1">
-                  <UButton :icon="filterChildren.isOpen ? 'i-lucide-chevron-down' : 'i-lucide-chevron-right'" variant="ghost" color="neutral" size="xs"
-                    class="invisible p-0.5 text-gray-400 group-hover:text-gray-600" />
-                  <UCheckbox :model-value="isSelected(filterChildren.id, filter.collection)" :label="filterChildren.label"
-                    @update:model-value="(val) => handleToggle(filterChildren, val, filter.collection)" />
                 </div>
-              </template>
-            </div>
-          </template>
-        </UCollapsible>
-        <USeparator class="pt-2" />
-      </div>
+              </div>
+
+              <!-- Search List Type -->
+              <div v-else-if="section.type === 'search-list'" class="space-y-2 pb-2">
+                <UInput v-model="searchInputs[section.id]" icon="i-heroicons-magnifying-glass" :placeholder="section.placeholder || 'Search...'" />
+                <div class="mt-2 text-xs font-medium text-gray-500">Options</div>
+                <div v-if="getFilteredOptions(section).length > 0" class="space-y-1 mt-1">
+                  <UCheckboxGroup v-model="selectedValues[section.id]" :items="getFilteredOptions(section)" value-key="id" />
+                </div>
+                <div v-else class="text-xs text-gray-400 mt-1">
+                  {{ searchInputs[section.id] ? 'No results found' : 'Type to search' }}
+                </div>
+              </div>
+
+              <!-- Checkbox Group Type -->
+              <div v-else-if="section.type === 'checkbox-group'" class="pb-2">
+                <UCheckboxGroup v-model="selectedValues[section.id]" :items="section.options" value-key="id"
+                  :class="[section.gridCols ? `grid grid-cols-${section.gridCols} gap-2` : 'space-y-2']" />
+              </div>
+            </template>
+          </UCollapsible>
+          <USeparator class="pt-2" />
+        </div>
+      </template>
 
       <div class="px-4 sm:px-0">
         <UCollapsible v-model:open="isAdvancedSettingOpen">

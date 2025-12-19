@@ -27,7 +27,7 @@ const filteredResults = computed(() => {
     // 1. Keyword filter
     if (activeFilters.value.keywords.length > 0) {
       const searchStr = `${result.summary} ${result.ecli} ${result.domain}`.toLowerCase()
-      const matchesAllKeywords = activeFilters.value.keywords.every(kw => 
+      const matchesAllKeywords = activeFilters.value.keywords.every(kw =>
         searchStr.includes(kw.toLowerCase())
       )
       if (!matchesAllKeywords) return false
@@ -43,7 +43,7 @@ const filteredResults = computed(() => {
     if (activeFilters.value.instances.length > 0) {
       const ecli = result.ecli.toUpperCase()
       let matchInstance = false
-      
+
       for (const id of activeFilters.value.instances) {
         if (id === 'hoge-raad' && ecli.includes(':HR:')) matchInstance = true
         else if (id === 'raad-van-state' && ecli.includes(':RVS:')) matchInstance = true
@@ -51,7 +51,7 @@ const filteredResults = computed(() => {
         else if (id === 'college-v-beroep' && ecli.includes(':CBB:')) matchInstance = true
         else if ((id === 'gerechtshoven' || id.startsWith('hof-')) && ecli.includes(':GH')) matchInstance = true
         else if ((id === 'rechtbanken' || id.startsWith('rb-')) && ecli.includes(':RB')) matchInstance = true
-        
+
         if (matchInstance) break
       }
       if (!matchInstance) return false
@@ -67,7 +67,7 @@ const filteredResults = computed(() => {
         'Civil': 'civiel-recht',
         'Familial': 'civiel-recht',
       }
-      
+
       const mappedDomain = domainMapping[result.domain]
       if (!mappedDomain) return false
 
@@ -76,7 +76,7 @@ const filteredResults = computed(() => {
         // In a real app, we'd have more granular domain data.
         return id === mappedDomain || id.includes(mappedDomain)
       })
-      
+
       if (!matchDomain) return false
     }
 
@@ -97,9 +97,142 @@ const advancedRules = ref<SearchRule[]>([
   { id: '1', operator: 'AND', field: Object.keys(fieldOptionsRechtspraak)[0]!, comparator: fieldOptionsRechtspraak[Object.keys(fieldOptionsRechtspraak)[0]!]?.comparators[0]?.value!, value: '' },
 ])
 
+const rechtspraakSections = ref([
+  {
+    id: 'instances',
+    name: "Instances",
+    icon: "i-ri:instance-line",
+    type: 'tree' as const,
+    isOpen: false,
+    options: [
+      { id: 'hoge-raad', label: 'Hoge Raad' },
+      { id: 'raad-van-state', label: 'Raad van State' },
+      { id: 'centrale-raad', label: 'Centrale Raad van Beroep' },
+      { id: 'college-v-beroep', label: 'College van Beroep voor het bedrijfsleven' },
+      {
+        id: 'gerechtshoven',
+        label: 'Gerechtshoven',
+        isOpen: false,
+        children: [
+          { id: 'hof-amsterdam', label: 'Gerechtshof Amsterdam' },
+          { id: 'hof-arnhem', label: 'Gerechtshof Arnhem-Leeuwarden' },
+          { id: 'hof-den-haag', label: 'Gerechtshof Den Haag' },
+          { id: 'hof-hertogenbosch', label: "Gerechtshof 's Hertogenbosch" },
+        ],
+      },
+      {
+        id: 'rechtbanken',
+        label: 'Rechtbanken',
+        isOpen: false,
+        children: [
+          { id: 'rb-amsterdam', label: 'Rechtbank Amsterdam' },
+          { id: 'rb-den-haag', label: 'Rechtbank Den Haag' },
+          { id: 'rb-gelderland', label: 'Rechtbank Gelderland' },
+          { id: 'rb-limburg', label: 'Rechtbank Limburg' },
+          { id: 'rb-midden-nl', label: 'Rechtbank Midden-Nederland' },
+          { id: 'rb-noord-holland', label: 'Rechtbank Noord-Holland' },
+          { id: 'rb-noord-nl', label: 'Rechtbank Noord-Nederland' },
+          { id: 'rb-oost-brabant', label: 'Rechtbank Oost-Brabant' },
+          { id: 'rb-overijssel', label: 'Rechtbank Overijssel' },
+          { id: 'rb-rotterdam', label: 'Rechtbank Rotterdam' },
+          { id: 'rb-z-w-brabant', label: 'Rechtbank Zeeland-West-Brabant' },
+        ],
+      },
+      {
+        id: 'andere-inst',
+        label: 'Andere instanties binnen het Koninkrijk',
+        isOpen: false,
+        children: [
+          { id: 'hof-st-maarten', label: 'Constitutioneel Hof Sint Maarten' },
+          { id: 'gem-hof-justitie', label: 'Gemeenschappelijk Hof van Justitie van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
+          { id: 'ger-ambtenaren', label: 'Gerecht in Ambtenarenzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
+          { id: 'raad-ber-ambt', label: 'Raad van Beroep in Ambtenarenzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
+          { id: 'raad-ber-belast', label: 'Raad van Beroep voor Belastingzaken van Aruba, Curacao, Sint Maarten en van Bonaire, Sint Eustatius en Saba' },
+          { id: 'ger-eerste-aruba', label: 'Gerecht in Eerste Aanleg van Aruba' },
+          { id: 'ger-eerste-bonaire', label: 'Gerecht in eerste aanleg van Bonaire, Sint Eustatius en Saba' },
+          { id: 'ger-eerste-curacao', label: 'Gerecht in eerste aanleg van Curaçao' },
+          { id: 'ger-eerste-st-maarten', label: 'Gerecht in eerste aanleg van Sint Maarten' },
+        ],
+      },
+    ]
+  },
+  {
+    id: 'domains',
+    name: "Domains",
+    icon: "i-ic:round-domain",
+    type: 'tree' as const,
+    isOpen: false,
+    options: [
+      {
+        id: 'bestuursrecht',
+        label: 'Bestuursrecht',
+        isOpen: false,
+        children: [
+          { id: 'ambtenarenrecht', label: 'Ambtenarenrecht' },
+          { id: 'belastingrecht', label: 'Belastingrecht' },
+          { id: 'bestuursprocesrecht', label: 'Bestuursprocesrecht' },
+          { id: 'bestuursstrafrecht', label: 'Bestuursstrafrecht' },
+          { id: 'eu-bestuursrecht', label: 'Europees bestuursrecht' },
+          { id: 'mededingingsrecht-b', label: 'Mededingingsrecht' },
+          { id: 'omgevingsrecht', label: 'Omgevingsrecht' },
+          { id: 'soc-zekerheid', label: 'Socialezekerheidsrecht' },
+          { id: 'vreemdelingenrecht', label: 'Vreemdelingenrecht' },
+        ],
+      },
+      {
+        id: 'civiel-recht',
+        label: 'Civiel recht',
+        isOpen: false,
+        children: [
+          { id: 'aanbestedingsrecht', label: 'Aanbestedingsrecht' },
+          { id: 'arbeidsrecht', label: 'Arbeidsrecht' },
+          { id: 'burgerlijk-procesrecht', label: 'Burgerlijk procesrecht' },
+          { id: 'eu-civiel-recht', label: 'Europees civiel recht' },
+          { id: 'goederenrecht', label: 'Goederenrecht' },
+          { id: 'insolventierecht', label: 'Insolventierecht' },
+          { id: 'intellectueel-eigendom', label: 'Intellectueel-eigendomsrecht' },
+          { id: 'int-privaat-recht', label: 'Internationaal privaatrecht' },
+          { id: 'mededingingsrecht-c', label: 'Mededingingsrecht' },
+          { id: 'ondernemingsrecht', label: 'Ondernemingsrecht' },
+          { id: 'personen-familie', label: 'Personen- en familierecht' },
+          { id: 'verbintenissenrecht', label: 'Verbintenissenrecht' },
+        ],
+      },
+      {
+        id: 'int-publiekrecht',
+        label: 'Internationaal publiekrecht',
+        isOpen: false,
+        children: [
+          { id: 'mensenrechten', label: 'Mensenrechten' },
+          { id: 'volkenrecht', label: 'Volkenrecht' },
+        ],
+      },
+      {
+        id: 'strafrecht',
+        label: 'Strafrecht',
+        isOpen: false,
+        children: [
+          { id: 'eu-strafrecht', label: 'Europees strafrecht' },
+          { id: 'int-strafrecht', label: 'Internationaal strafrecht' },
+          { id: 'materieel-strafrecht', label: 'Materieel strafrecht' },
+          { id: 'penitentiair-strafrecht', label: 'Penitentiair strafrecht' },
+          { id: 'strafprocesrecht', label: 'Strafprocesrecht' },
+        ],
+      },
+    ]
+  }
+])
+
 onMounted(async () => {
   await fetchInitialData()
 })
+
+const handleFilterChange = (f: any) => {
+  activeFilters.value = {
+    ...activeFilters.value,
+    ...f
+  }
+}
 
 const handleMainSearch = () => {
   const combinedRules: SearchRule[] = []
@@ -151,7 +284,7 @@ const handleMainSearch = () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
       <!-- Filters Panel (Left Side) -->
       <div class="lg:col-span-2">
-        <ResultFilter @filter="(f: any) => activeFilters = f" />
+        <ResultFilter :sections="rechtspraakSections" @filter="handleFilterChange" />
       </div>
 
       <!-- Results List (Right Side) -->

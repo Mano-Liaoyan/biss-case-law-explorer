@@ -17,7 +17,10 @@ const activeFilters = ref({
   endDate: new CalendarDate(2024, 12, 31),
   instances: [] as string[],
   domains: [] as string[],
-  keywords: [] as string[]
+  keywords: [] as string[],
+  languages: [] as string[],
+  importanceLevels: [] as string[],
+  documentTypes: [] as string[]
 })
 
 const filteredResults = computed(() => {
@@ -25,7 +28,7 @@ const filteredResults = computed(() => {
     // 1. Keyword filter
     if (activeFilters.value.keywords.length > 0) {
       const searchStr = `${result.summary} ${result.ecli} ${result.domain}`.toLowerCase()
-      const matchesAllKeywords = activeFilters.value.keywords.every(kw => 
+      const matchesAllKeywords = activeFilters.value.keywords.every(kw =>
         searchStr.includes(kw.toLowerCase())
       )
       if (!matchesAllKeywords) return false
@@ -41,7 +44,7 @@ const filteredResults = computed(() => {
     if (activeFilters.value.instances.length > 0) {
       const ecli = result.ecli.toUpperCase()
       let matchInstance = false
-      
+
       for (const id of activeFilters.value.instances) {
         if (id === 'hoge-raad' && ecli.includes(':HR:')) matchInstance = true
         else if (id === 'raad-van-state' && ecli.includes(':RVS:')) matchInstance = true
@@ -49,7 +52,7 @@ const filteredResults = computed(() => {
         else if (id === 'college-v-beroep' && ecli.includes(':CBB:')) matchInstance = true
         else if ((id === 'gerechtshoven' || id.startsWith('hof-')) && ecli.includes(':GH')) matchInstance = true
         else if ((id === 'rechtbanken' || id.startsWith('rb-')) && ecli.includes(':RB')) matchInstance = true
-        
+
         if (matchInstance) break
       }
       if (!matchInstance) return false
@@ -65,14 +68,14 @@ const filteredResults = computed(() => {
         'Civil': 'civiel-recht',
         'Familial': 'civiel-recht',
       }
-      
+
       const mappedDomain = domainMapping[result.domain]
       if (!mappedDomain) return false
 
       const matchDomain = activeFilters.value.domains.some(id => {
         return id === mappedDomain || id.includes(mappedDomain)
       })
-      
+
       if (!matchDomain) return false
     }
 
@@ -115,6 +118,56 @@ const handleMainSearch = () => {
   handleSearch(combinedRules)
 }
 
+const echrSections = ref([
+  {
+    id: 'languages',
+    name: 'Language',
+    type: 'search-list' as const,
+    isOpen: false,
+    placeholder: '(e.g., ENG, FRE)',
+    options: [
+      { id: 'ENG', label: 'English (ENG)' },
+      { id: 'FRE', label: 'French (FRE)' },
+    ]
+  },
+  {
+    id: 'importanceLevels',
+    name: 'Importance Level (1-4)',
+    type: 'checkbox-group' as const,
+    isOpen: false,
+    options: [
+      { id: '1', label: 'Importance 1 (highest)' },
+      { id: '2', label: 'Importance 2' },
+      { id: '3', label: 'Importance 3' },
+      { id: '4', label: 'Importance 4 (lowest)' },
+    ]
+  },
+  {
+    id: 'documentTypes',
+    name: 'Document Types',
+    type: 'checkbox-group' as const,
+    isOpen: false,
+    gridCols: 2,
+    options: [
+      { id: 'HEJUD', label: 'HEJUD' },
+      { id: 'HEDEC', label: 'HEDEC' },
+      { id: 'HECOM', label: 'HECOM' },
+      { id: 'HEINF', label: 'HEINF' },
+      { id: 'HECJUD', label: 'HECJUD' },
+      { id: 'HECDEC', label: 'HECDEC' },
+      { id: 'HECCOM', label: 'HECCOM' },
+      { id: 'HECINF', label: 'HECINF' },
+    ]
+  }
+])
+
+const handleFilterChange = (f: any) => {
+  activeFilters.value = {
+    ...activeFilters.value,
+    ...f
+  }
+}
+
 const open = ref(false)
 
 onMounted(async () => {
@@ -149,7 +202,7 @@ onMounted(async () => {
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
       <!-- Filters Panel (Left Side) -->
       <div class="lg:col-span-2">
-        <ResultFilter @filter="(f: any) => activeFilters = f" />
+        <ResultFilter :sections="echrSections" @filter="handleFilterChange" />
       </div>
 
       <!-- Results List (Right Side) -->
