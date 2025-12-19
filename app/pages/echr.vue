@@ -1,13 +1,22 @@
 <script setup lang="ts">
 
-import type { SearchRule } from '~/types/search'
-import { fieldOptions } from '~/mock/search'
+import type { ComparatorOption, SearchRule } from '~/types/search'
+import { fieldOptionsECHR } from '~/mock/search'
 
 const q = ref('')
 
 const AdvancedSearch = resolveComponent('AdvancedSearch')
 const ResultFilter = resolveComponent('ResultFilter')
 const ResultTable = resolveComponent('ResultTable')
+
+const comparatorOptions: ComparatorOption[] = [
+  { label: 'violated', value: 'violated' },
+  { label: 'applied', value: 'applied' },
+  { label: 'not violated', value: '!violated' },
+  { label: 'is not', value: 'is_not' },
+  { label: 'starts with', value: 'starts_with' },
+  { label: 'ends with', value: 'ends_with' },
+]
 
 const { results, handleSearch } = useSearch()
 
@@ -33,7 +42,7 @@ const open = ref(false)
           Advanced Search
         </UButton>
         <template #content>
-          <AdvancedSearch :fields="fieldOptions" @search="handleSearch" />
+          <AdvancedSearch :comparator-ops="comparatorOptions" :fields="fieldOptionsECHR" @search="handleSearch" />
         </template>
       </UCollapsible>
     </UCard>

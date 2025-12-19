@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import type { SearchRule } from '~/types/search'
-import { fieldOptions } from '~/mock/search'
+import { fieldOptionsRechtspraak } from '~/mock/search'
 
 const q = ref('')
 
@@ -33,7 +33,7 @@ const open = ref(false)
           Advanced Search
         </UButton>
         <template #content>
-          <AdvancedSearch :fields="fieldOptions" @search="handleSearch" />
+          <AdvancedSearch :fields="fieldOptionsRechtspraak" @search="handleSearch" />
         </template>
       </UCollapsible>
     </UCard>

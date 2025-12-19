@@ -1,10 +1,35 @@
-import type { SearchResult, FieldOption } from '~/types/search'
+import type { SearchResult, FieldOption, ComparatorOption, FieldOptionMap } from '~/types/search'
 
-export const fieldOptions: FieldOption[] = [
-  { label: "Law Refernces", value: "law-ref" },
-  { label: "ECLI", value: "ecli" }
+const comparatorOptionsCommon: ComparatorOption[] = [
+  { label: 'contains', value: 'contains' },
+  { label: 'does not contain', value: '!contains' },
+  { label: 'is', value: 'is' },
+  { label: 'is not', value: 'is_not' },
+  { label: 'starts with', value: 'starts_with' },
+  { label: 'ends with', value: 'ends_with' },
 ]
 
+const comparatorOptionsArticle: ComparatorOption[] = [
+  { label: 'violated', value: 'violated' },
+  { label: 'applied', value: 'applied' },
+  { label: 'not violated', value: '!violated' }
+]
+
+const comparatorOptionsApplicationNumber: ComparatorOption[] = [
+  { label: 'equal', value: 'application-number-equal' },
+  { label: 'not equal', value: '!application-number-equal' },
+]
+
+export const fieldOptionsRechtspraak: FieldOptionMap = {
+  law_ref: { label: "Law Refernces", value: "law_ref", comparators: comparatorOptionsCommon },
+  ecli: { label: "ECLI", value: "ecli", comparators: comparatorOptionsCommon }
+}
+
+
+export const fieldOptionsECHR: FieldOptionMap = {
+  articles: { label: "Articles", value: "articles", comparators: comparatorOptionsArticle },
+  application_number: { label: "Application Numbers", value: "application_number", comparators: comparatorOptionsApplicationNumber }
+}
 export const allResults: SearchResult[] = [
   {
     "id": "1000",

@@ -1,33 +1,41 @@
 <script setup lang="ts">
-import type { SearchRule, FieldOption } from '~/types/search'
+import type { SearchRule, FieldOption, ComparatorOption, FieldOptionMap } from '~/types/search'
 
 const props = defineProps<{
-  fields: FieldOption[]
+  fields: FieldOptionMap
 }>()
 
 const emit = defineEmits<{
   (e: 'search', rules: SearchRule[]): void
 }>()
 
-const comparatorOptions = [
-  { label: 'contains', value: 'contains' },
-  { label: 'does not contain', value: '!contains' },
-  { label: 'is', value: 'is' },
-  { label: 'is not', value: 'is_not' },
-  { label: 'starts with', value: 'starts_with' },
-  { label: 'ends with', value: 'ends_with' },
-]
-
 const searchRules = ref<SearchRule[]>([
-  { id: '1', operator: 'AND', field: 'Law Refernces', comparator: 'contains', value: '' },
+  { id: '1', operator: 'AND', field: Object.keys(props.fields)[0]!, comparator: props.fields[Object.keys(props.fields)[0]!]?.comparators[0]?.value!, value: '' },
 ])
+
+// Watch for changes in the field of each search rule to reset the comparator
+watch(
+  () => searchRules.value.map(rule => rule.field),
+  (newFields, oldFields) => {
+    newFields.forEach((newField, index) => {
+      if (oldFields && newField !== oldFields[index]) {
+        const rule = searchRules.value[index]
+        if (rule) {
+          const firstComparator = props.fields[newField]?.comparators[0]?.value
+          rule.comparator = firstComparator || ''
+        }
+      }
+    })
+  },
+  { deep: true }
+)
 
 const addRule = () => {
   searchRules.value.push({
     id: Math.random().toString(36).substr(2, 9),
     operator: 'AND',
-    field: 'Law Refernces',
-    comparator: 'contains',
+    field: Object.keys(props.fields)[0] || '',
+    comparator: (props.fields && Object.keys(props.fields)[0] && props.fields[Object.keys(props.fields)[0]!]?.comparators[0]?.value) || '',
     value: '',
   })
 }
@@ -46,8 +54,8 @@ const clearRules = () => {
     {
       id: Math.random().toString(36).substr(2, 9),
       operator: 'AND',
-      field: 'Law Refernces',
-      comparator: 'contains',
+      field: Object.keys(props.fields)[0] || '',
+      comparator: (props.fields && Object.keys(props.fields)[0] && props.fields[Object.keys(props.fields)[0]!]?.comparators[0]?.value) || '',
       value: '',
     },
   ]
@@ -79,11 +87,12 @@ const executeSearch = () => {
           <!-- Operator (AND/OR) - Visible from 2nd item -->
 
           <!-- Field Selector -->
-          <USelect class="basis-30 shrink-0" size="md" v-model="rule.field" :items="props.fields" option-attribute="label" value-attribute="value" placeholder="Field" />
+          <USelect class="basis-30 shrink-0 overflow-auto" size="md" v-model="rule.field" :items="Object.values(props.fields)" option-attribute="label" value-attribute="value"
+            :ui="{ content: 'min-w-fit' }" placeholder="Field" />
 
           <!-- Comparator Selector -->
-          <USelect class="basis-30 shrink-0 overflow-auto" size="md" v-model="rule.comparator" :items="comparatorOptions" value-attribute="value" option-attribute="label"
-            :ui="{ content: 'min-w-fit' }" placeholder="Condition" />
+          <USelect class="basis-30 shrink-0 overflow-auto" size="md" v-model="rule.comparator" :items="props.fields[rule.field]?.comparators || []" value-attribute="value"
+            option-attribute="label" :ui="{ content: 'min-w-fit' }" placeholder="Condition" />
 
           <!-- Value Input -->
           <UInput class=" flex-auto grow" size="md" v-model="rule.value" placeholder="Value..." @keydown.enter="executeSearch" />

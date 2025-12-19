@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
-import type { SearchRule, SearchResult } from '~/types/search'
-import { fieldOptions } from '~/mock/search'
+import type { SearchRule, SearchResult, ComparatorOption } from '~/types/search'
+import { fieldOptionsRechtspraak } from '~/mock/search'
 
 const q = ref('')
 
@@ -14,6 +14,15 @@ const { handleSearch } = useSearch()
 
 const open = ref(false)
 const res = ref<SearchResult[]>([])
+
+const comparatorOptions: ComparatorOption[] = [
+  { label: 'contains', value: 'contains' },
+  { label: 'does not contain', value: '!contains' },
+  { label: 'is', value: 'is' },
+  { label: 'is not', value: 'is_not' },
+  { label: 'starts with', value: 'starts_with' },
+  { label: 'ends with', value: 'ends_with' },
+]
 
 onMounted(async () => {
   res.value = await fetch()
@@ -39,7 +48,7 @@ onMounted(async () => {
           Advanced Search
         </UButton>
         <template #content>
-          <AdvancedSearch :fields="fieldOptions" @search="handleSearch" />
+          <AdvancedSearch :comparator-ops="comparatorOptions" :fields="fieldOptionsRechtspraak" @search="handleSearch" />
         </template>
       </UCollapsible>
     </UCard>
