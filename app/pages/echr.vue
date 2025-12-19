@@ -139,6 +139,7 @@ const handleMainSearch = () => {
 const echrSections = ref([
   {
     id: 'languages',
+    icon: 'i-lucide:languages',
     name: 'Language',
     type: 'search-list' as const,
     isOpen: false,
@@ -150,6 +151,7 @@ const echrSections = ref([
   },
   {
     id: 'importanceLevels',
+    icon: 'i-simple-icons:levelsdotfyi',
     name: 'Importance Level (1-4)',
     type: 'checkbox-group' as const,
     isOpen: false,
@@ -162,6 +164,7 @@ const echrSections = ref([
   },
   {
     id: 'documentTypes',
+    icon: 'i-basil:document-outline',
     name: 'Document Types',
     type: 'checkbox-group' as const,
     isOpen: false,
