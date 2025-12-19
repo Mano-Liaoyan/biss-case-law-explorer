@@ -15,8 +15,8 @@ const { results, loading, error, handleSearch, fetchInitialData } = useSearch()
 const open = ref(false)
 
 const activeFilters = ref({
-  startDate: new CalendarDate(2020, 1, 1),
-  endDate: new CalendarDate(2024, 12, 31),
+  startDate: new CalendarDate(2000, 1, 1),
+  endDate: new CalendarDate(2030, 1, 1),
   instances: [] as string[],
   domains: [] as string[],
   keywords: [] as string[]

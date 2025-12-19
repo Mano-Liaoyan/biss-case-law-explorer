@@ -13,8 +13,8 @@ const ResultTable = resolveComponent('ResultTable')
 const { results, loading, error, handleSearch, fetchInitialData } = useSearch()
 
 const activeFilters = ref({
-  startDate: new CalendarDate(2020, 1, 1),
-  endDate: new CalendarDate(2024, 12, 31),
+  startDate: new CalendarDate(2000, 1, 1),
+  endDate: new CalendarDate(2030, 1, 1),
   instances: [] as string[],
   domains: [] as string[],
   keywords: [] as string[],
@@ -77,6 +77,24 @@ const filteredResults = computed(() => {
       })
 
       if (!matchDomain) return false
+    }
+
+    // 5. Languages filter
+    if (activeFilters.value.languages.length > 0) {
+      const resultLang = (result as any).language || 'ENG' // Default to ENG for mock
+      if (!activeFilters.value.languages.includes(resultLang)) return false
+    }
+
+    // 6. Importance Levels filter
+    if (activeFilters.value.importanceLevels.length > 0) {
+      const resultImportance = String((result as any).importanceLevel || '1') // Default to 1 for mock
+      if (!activeFilters.value.importanceLevels.includes(resultImportance)) return false
+    }
+
+    // 7. Document Types filter
+    if (activeFilters.value.documentTypes.length > 0) {
+      const resultDocType = (result as any).documentType || 'HEJUD' // Default for mock
+      if (!activeFilters.value.documentTypes.includes(resultDocType)) return false
     }
 
     return true

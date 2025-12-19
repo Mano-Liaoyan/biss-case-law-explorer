@@ -35,8 +35,8 @@ const emit = defineEmits(['filter'])
 const inputDateStart = useTemplateRef('inputDateStart')
 const inputDateEnd = useTemplateRef('inputDateEnd')
 
-const startDate = shallowRef(new CalendarDate(2021, 1, 10))
-const endDate = shallowRef(new CalendarDate(2022, 1, 10))
+const startDate = shallowRef(new CalendarDate(2000, 1, 1))
+const endDate = shallowRef(new CalendarDate(2030, 1, 1))
 
 const selectedValues = ref<Record<string, string[]>>({})
 const searchInputs = ref<Record<string, string>>({})
