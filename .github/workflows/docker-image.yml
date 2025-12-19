@@ -16,3 +16,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag biss-case-law-explorer:$(date +%s) --tag biss-case-law-explorer:latest
+    
+    - name: Build and push Docker images
+      # You may pin to the exact commit or the version.
+      uses: docker/build-push-action@v6.18.0
+      with:
+        context: .
+        # Path to the Dockerfile
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ secrets.DOCKER_USERNAME }}/biss-case-law-explorer:latest
+          ${{ secrets.DOCKER_USERNAME }}/biss-case-law-explorer:${{ github.sha }}
+            
