@@ -46,8 +46,7 @@ useHead({
 
       <template #right>
         <UColorModeButton />
-        <!-- TODO: change the URL to my own github repository -->
-        <UButton to="https://github.com/nuxt-ui-templates/starter" target="_blank" icon="i-simple-icons-github" aria-label="GitHub" color="neutral" variant="ghost" />
+        <UButton to="https://github.com/Mano-Liaoyan/biss-case-law-explorer" target="_blank" icon="i-simple-icons-github" aria-label="GitHub" color="neutral" variant="ghost" />
       </template>
     </UHeader>
 
