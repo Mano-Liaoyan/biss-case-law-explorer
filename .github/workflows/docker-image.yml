@@ -7,22 +7,25 @@ on:
     branches: [ "master" ]
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag biss-case-law-explorer:$(date +%s) --tag biss-case-law-explorer:latest
     
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
     - name: Build and push Docker images
-      # You may pin to the exact commit or the version.
-      uses: docker/build-push-action@v6.18.0
+      uses: docker/build-push-action@v6
       with:
         context: .
-        # Path to the Dockerfile
         file: ./Dockerfile
         push: true
         tags: |
