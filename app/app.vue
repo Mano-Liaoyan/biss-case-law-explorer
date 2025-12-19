@@ -17,9 +17,7 @@ const items = computed<NavigationMenuItem[]>(() => [
   },
   {
     label: 'CJUE',
-    // to: '/docs/components',
     disabled: true
-    // active: route.path.startsWith('/docs/components')
   }
 ])
 

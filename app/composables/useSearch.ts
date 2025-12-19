@@ -11,7 +11,7 @@ export const useSearch = () => {
     loading.value = true
     error.value = null
     try {
-      // Simulate initial API delay
+      // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1500))
       results.value = [...allResults]
     } catch (e: any) {

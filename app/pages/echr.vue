@@ -25,7 +25,7 @@ const activeFilters = ref({
 
 const filteredResults = computed(() => {
   return results.value.filter(result => {
-    // 1. Keyword filter
+    // Keyword filter
     if (activeFilters.value.keywords.length > 0) {
       const searchStr = `${result.summary} ${result.ecli} ${result.domain}`.toLowerCase()
       const matchesAllKeywords = activeFilters.value.keywords.every(kw =>
@@ -34,13 +34,13 @@ const filteredResults = computed(() => {
       if (!matchesAllKeywords) return false
     }
 
-    // 2. Date range filter
+    // Date range filter
     const resultDate = result.date // "YYYY-MM-DD"
     const startStr = activeFilters.value.startDate.toString()
     const endStr = activeFilters.value.endDate.toString()
     if (resultDate < startStr || resultDate > endStr) return false
 
-    // 3. Instances filter
+    // Instances filter
     if (activeFilters.value.instances.length > 0) {
       const ecli = result.ecli.toUpperCase()
       let matchInstance = false
@@ -58,7 +58,7 @@ const filteredResults = computed(() => {
       if (!matchInstance) return false
     }
 
-    // 4. Domains filter
+    // Domains filter
     if (activeFilters.value.domains.length > 0) {
       const domainMapping: Record<string, string> = {
         'International': 'int-publiekrecht',
@@ -79,19 +79,19 @@ const filteredResults = computed(() => {
       if (!matchDomain) return false
     }
 
-    // 5. Languages filter
+    // Languages filter
     if (activeFilters.value.languages.length > 0) {
       const resultLang = (result as any).language || 'ENG' // Default to ENG for mock
       if (!activeFilters.value.languages.includes(resultLang)) return false
     }
 
-    // 6. Importance Levels filter
+    // Importance Levels filter
     if (activeFilters.value.importanceLevels.length > 0) {
       const resultImportance = String((result as any).importanceLevel || '1') // Default to 1 for mock
       if (!activeFilters.value.importanceLevels.includes(resultImportance)) return false
     }
 
-    // 7. Document Types filter
+    // Document Types filter
     if (activeFilters.value.documentTypes.length > 0) {
       const resultDocType = (result as any).documentType || 'HEJUD' // Default for mock
       if (!activeFilters.value.documentTypes.includes(resultDocType)) return false
@@ -100,15 +100,6 @@ const filteredResults = computed(() => {
     return true
   })
 })
-
-const comparatorOptions: ComparatorOption[] = [
-  { label: 'violated', value: 'violated' },
-  { label: 'applied', value: 'applied' },
-  { label: 'not violated', value: '!violated' },
-  { label: 'is not', value: 'is_not' },
-  { label: 'starts with', value: 'starts_with' },
-  { label: 'ends with', value: 'ends_with' },
-]
 
 const advancedRules = ref<SearchRule[]>([
   { id: '1', operator: 'AND', field: Object.keys(fieldOptionsECHR)[0]!, comparator: fieldOptionsECHR[Object.keys(fieldOptionsECHR)[0]!]?.comparators[0]?.value!, value: '' },

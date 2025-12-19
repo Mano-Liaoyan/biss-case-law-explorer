@@ -1,4 +1,4 @@
-import type { SearchResult, FieldOption, ComparatorOption, FieldOptionMap } from '~/types/search'
+import type { SearchResult, ComparatorOption, FieldOptionMap } from '~/types/search'
 
 const comparatorOptionsCommon: ComparatorOption[] = [
   { label: 'contains', value: 'contains' },

@@ -24,7 +24,7 @@ const activeFilters = ref({
 
 const filteredResults = computed(() => {
   return results.value.filter(result => {
-    // 1. Keyword filter
+    // Keyword filter
     if (activeFilters.value.keywords.length > 0) {
       const searchStr = `${result.summary} ${result.ecli} ${result.domain}`.toLowerCase()
       const matchesAllKeywords = activeFilters.value.keywords.every(kw =>
@@ -33,13 +33,13 @@ const filteredResults = computed(() => {
       if (!matchesAllKeywords) return false
     }
 
-    // 2. Date range filter
+    // Date range filter
     const resultDate = result.date // "YYYY-MM-DD"
     const startStr = activeFilters.value.startDate.toString()
     const endStr = activeFilters.value.endDate.toString()
     if (resultDate < startStr || resultDate > endStr) return false
 
-    // 3. Instances filter
+    // Instances filter
     if (activeFilters.value.instances.length > 0) {
       const ecli = result.ecli.toUpperCase()
       let matchInstance = false
@@ -57,7 +57,7 @@ const filteredResults = computed(() => {
       if (!matchInstance) return false
     }
 
-    // 4. Domains filter
+    // Domains filter
     if (activeFilters.value.domains.length > 0) {
       const domainMapping: Record<string, string> = {
         'International': 'int-publiekrecht',
@@ -83,15 +83,6 @@ const filteredResults = computed(() => {
     return true
   })
 })
-
-const comparatorOptions: ComparatorOption[] = [
-  { label: 'contains', value: 'contains' },
-  { label: 'does not contain', value: '!contains' },
-  { label: 'is', value: 'is' },
-  { label: 'is not', value: 'is_not' },
-  { label: 'starts with', value: 'starts_with' },
-  { label: 'ends with', value: 'ends_with' },
-]
 
 const advancedRules = ref<SearchRule[]>([
   { id: '1', operator: 'AND', field: Object.keys(fieldOptionsRechtspraak)[0]!, comparator: fieldOptionsRechtspraak[Object.keys(fieldOptionsRechtspraak)[0]!]?.comparators[0]?.value!, value: '' },

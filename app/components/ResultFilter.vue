@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { CalendarDate } from '@internationalized/date'
-import type { CheckboxGroupItem } from '@nuxt/ui'
 
 const UBadge = resolveComponent('UBadge')
 const UButton = resolveComponent('UButton')

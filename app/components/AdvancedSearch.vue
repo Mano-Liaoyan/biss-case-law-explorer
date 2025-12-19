@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { SearchRule, FieldOption, ComparatorOption, FieldOptionMap } from '~/types/search'
+import type { SearchRule, FieldOptionMap } from '~/types/search'
 
 const props = defineProps<{
   fields: FieldOptionMap
@@ -69,7 +69,6 @@ const clearRules = () => {
     </div>
 
     <div>
-      <!-- <span class="text-sm font-medium text-gray-500 pl-2">When incoming requests match…</span> -->
       <div class="flex flex-col gap-4">
         <div class="flex flex-row gap-4">
           <span class="basis-30 shrink-0 pl-1">Field</span>
@@ -79,7 +78,6 @@ const clearRules = () => {
           <span class="flex-none"></span>
         </div>
         <div v-for="(rule, index) in searchRules" :key="rule.id" class="flex flex-row gap-4">
-          <!-- Operator (AND/OR) - Visible from 2nd item -->
 
           <!-- Field Selector -->
           <USelect class="basis-30 shrink-0 overflow-auto" size="md" v-model="rule.field" :items="Object.values(props.fields)" option-attribute="label" value-attribute="value"
@@ -92,7 +90,7 @@ const clearRules = () => {
           <!-- Value Input -->
           <UInput class=" flex-auto grow" size="md" v-model="rule.value" placeholder="Value..." @keydown.enter="emit('search', searchRules)" />
 
-
+          <!-- Logical Selector -->
           <USelect class="basis-20 shrink-0" size="md" v-model="rule.operator" color="secondary" variant="none" :items="['AND', 'OR']" placeholder="Operator" />
 
           <!-- Delete Rule -->
@@ -102,7 +100,7 @@ const clearRules = () => {
       </div>
 
 
-      <!-- Add Rule Button -->
+      <!-- Add Rule and Clear All Button -->
       <div class="mt-6 flex flex-row gap-4 justify-end">
         <UButton color="neutral" variant="soft" icon="i-heroicons-plus" size="sm" label="Add Rule" @click="addRule" />
         <UButton color="error" variant="ghost" size="sm" icon="i-heroicons-trash" @click="clearRules" v-if="searchRules.length > 0">Clear All</UButton>
