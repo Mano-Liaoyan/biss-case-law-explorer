@@ -12,7 +12,7 @@ export const useSearch = () => {
     error.value = null
     try {
       // Simulate initial API delay
-      await new Promise(resolve => setTimeout(resolve, 3000))
+      await new Promise(resolve => setTimeout(resolve, 1500))
       results.value = [...allResults]
     } catch (e: any) {
       error.value = e.message || 'An error occurred during initial fetch'
@@ -27,7 +27,7 @@ export const useSearch = () => {
 
     try {
       // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      await new Promise(resolve => setTimeout(resolve, 1500))
 
       if (rules.length === 0 || (rules.length === 1 && !rules[0]!.value)) {
         results.value = [...allResults]
