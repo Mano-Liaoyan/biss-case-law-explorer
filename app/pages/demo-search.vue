@@ -11,10 +11,6 @@ const ResultTable = resolveComponent('ResultTable')
 
 const { results, handleSearch } = useSearch()
 
-const handleFilter = (filters: any) => {
-  console.log('Filters updated:', filters)
-}
-
 const open = ref(false)
 </script>
 
@@ -45,12 +41,11 @@ const open = ref(false)
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 bg-gray-50/50 dark:bg-gray-900/50 rounded-lg">
       <!-- Filters Panel (Left Side) -->
       <div class="lg:col-span-2">
-        <ResultFilter @filter="handleFilter" />
+        <ResultFilter />
       </div>
 
       <!-- Results List (Right Side) -->
       <div class="lg:col-span-10 space-y-4">
-
         <ResultTable :data="results" />
       </div>
     </div>
