@@ -7,17 +7,18 @@ const route = useRoute()
 const items = computed<NavigationMenuItem[]>(() => [
   {
     label: 'Rechtspraak',
-    to: '/docs/getting-started',
-    // active: route.path.startsWith('/docs/getting-started')
+    to: '/rechtspraak',
+    active: route.path.startsWith('/rechtspraak')
   },
   {
     label: 'ECHR',
-    to: '/docs/components',
-    // active: route.path.startsWith('/docs/components')
+    to: '/echr',
+    active: route.path.startsWith('/echr')
   },
   {
     label: 'CJUE',
-    to: '/docs/components',
+    // to: '/docs/components',
+    disabled: true
     // active: route.path.startsWith('/docs/components')
   }
 ])
